@@ -115,6 +115,8 @@ class ResetPasswordController extends AbstractController
 
             // Encode(hash) the plain password, and set it.
             $user->setPassword($passwordHasher->hashPassword($user, $plainPassword));
+            //creation pour dire quand le User a ete modifié
+            $user->setModifyAt(new \DateTime());
             $this->entityManager->flush();
 
             // The session is cleaned up after the password has been changed.
@@ -156,7 +158,7 @@ class ResetPasswordController extends AbstractController
         }
 
         $email = (new TemplatedEmail())
-            ->from(new Address('mr.france2022@gmail.com', 'Quizz Liner Reset Password'))
+            ->from(new Address('r3tr0san@gmail.com', 'Quizz Liner Reset Password'))
             ->to((string) $user->getEmail())
             ->subject('Your password reset request')
             ->htmlTemplate('reset_password/email.html.twig')

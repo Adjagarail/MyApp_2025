@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\DBAL\Types\Types;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -39,11 +40,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255)]
     private ?string $Lastname = null;
 
-    #[ORM\Column]
-    private ?\DateTimeImmutable $CreatedAt = null;
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: false)]
+    private ?\DateTimeInterface $CreatedAt = null;
 
-    #[ORM\Column]
-    private ?\DateTimeImmutable $ModifyAt = null;
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $ModifyAt = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $Avatar = null;
@@ -149,28 +150,42 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeImmutable
+    public function getCreatedAt(): ?\DateTimeInterface
     {
         return $this->CreatedAt;
     }
 
-    public function setCreatedAt(\DateTimeImmutable $CreatedAt): static
+    public function setCreatedAt(\DateTimeInterface $CreatedAt): self
     {
         $this->CreatedAt = $CreatedAt;
 
         return $this;
     }
 
-    public function getModifyAt(): ?\DateTimeImmutable
+    public function getModifyAt(): ?\DateTimeInterface
     {
         return $this->ModifyAt;
     }
 
-    public function setModifyAt(\DateTimeImmutable $ModifyAt): static
+    public function setModifyAt(?\DateTimeInterface $ModifyAt): self
     {
         $this->ModifyAt = $ModifyAt;
 
         return $this;
+    }
+
+    //Événement Doctrine pour définir createdAt à la création
+    #[ORM\PrePersist]
+    public function onPrePersist(): void
+    {
+        $this->CreatedAt = new \DateTime();
+    }
+
+    //Événement Doctrine pour mettre à jour ModifyAt à chaque modification
+    #[ORM\PreUpdate]
+    public function onPreUpdate(): void
+    {
+        $this->ModifyAt = new \DateTime();
     }
 
     public function getAvatar(): ?string
